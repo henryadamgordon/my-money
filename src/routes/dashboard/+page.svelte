@@ -1,17 +1,12 @@
 <script lang="ts">
-	import { user, logout } from '$lib/auth';
+	import { authStore } from '$lib/stores/auth';
 	import { goto } from '$app/navigation';
 	import { APP_VERSION } from '$lib/version';
 	
-	// Redirect to login if not authenticated
-	$: if ($user === null) {
-		goto('/');
-	}
-	
 	async function handleLogout() {
 		try {
-			await logout();
-			goto('/');
+			authStore.logout();
+			// Navigation will be handled by the layout
 		} catch (error) {
 			console.error('Logout failed:', error);
 		}
@@ -29,8 +24,8 @@
 			<span class="version-badge">v{APP_VERSION}</span>
 		</div>
 		<div class="user-info">
-			{#if $user}
-				<span>Welcome, {$user.email}!</span>
+			{#if $authStore.user}
+				<span>Welcome, {$authStore.user.email}!</span>
 				<button on:click={handleLogout} class="logout-btn">Logout</button>
 			{/if}
 		</div>
@@ -39,12 +34,12 @@
 	<main class="dashboard-content">
 		<div class="welcome-card">
 			<h2>🎉 Welcome to Your Financial Dashboard!</h2>
-			<p>You've successfully logged in with Firebase Auth.</p>
-			{#if $user}
+			<p>You've successfully logged in and your session is being remembered.</p>
+			{#if $authStore.user}
 				<div class="user-details">
-					<p><strong>User ID:</strong> {$user.uid}</p>
-					<p><strong>Email:</strong> {$user.email}</p>
-					<p><strong>Email Verified:</strong> {$user.emailVerified ? 'Yes' : 'No'}</p>
+					<p><strong>User ID:</strong> {$authStore.user.id}</p>
+					<p><strong>Email:</strong> {$authStore.user.email}</p>
+					<p><strong>Name:</strong> {$authStore.user.name || 'Not set'}</p>
 				</div>
 			{/if}
 		</div>
@@ -59,13 +54,19 @@
 			<div class="feature-card">
 				<h3>📊 Budget</h3>
 				<p>Set and monitor budgets</p>
-				<button disabled>Coming Soon</button>
+				<a href="/budget" class="nav-link">Manage Budget</a>
 			</div>
 			
 			<div class="feature-card">
 				<h3>📈 Reports</h3>
 				<p>View financial reports</p>
 				<button disabled>Coming Soon</button>
+			</div>
+			
+			<div class="feature-card">
+				<h3>⚙️ Settings</h3>
+				<p>Test navigation persistence</p>
+				<a href="/settings" class="nav-link">Go to Settings</a>
 			</div>
 		</div>
 	</main>

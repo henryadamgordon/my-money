@@ -1,8 +1,14 @@
 <script lang="ts">
+	import { createEventDispatcher } from 'svelte';
+	
 	// Component props
 	export let title = 'Login';
 	export let loading = false;
-	export let onLogin: (data: { email: string; password: string }) => void = () => {};
+	
+	// Event dispatcher
+	const dispatch = createEventDispatcher<{
+		login: { email: string; password: string };
+	}>();
 
 	// Form data
 	let email = '';
@@ -31,7 +37,7 @@
 	// Handle form submission
 	function handleSubmit() {
 		if (validateForm()) {
-			onLogin({ email, password });
+			dispatch('login', { email, password });
 		}
 	}
 </script>
@@ -81,9 +87,9 @@
 			</button>
 		</form>
 
-		<div class="login-footer">
+		<!-- <div class="login-footer">
 			<p>Don't have an account? <a href="/register">Sign up</a></p>
-		</div>
+		</div> -->
 	</div>
 </div>
 

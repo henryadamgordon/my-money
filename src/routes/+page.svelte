@@ -1,44 +1,18 @@
 <script lang="ts">
 	import { Login } from '$lib';
-	import { login } from '$lib/auth';
-	import { goto } from '$app/navigation';
-	import { APP_VERSION, APP_NAME } from '$lib/version';
+	import { authStore } from '$lib/stores/auth';
+	import { APP_VERSION } from '$lib/version';
 
-	let loading = false;
-
-	// Handle login from the Login component
-	async function handleLogin(data: { email: string; password: string }) {
-		const { email, password } = data;
-		
-		loading = true;
+	// Handle login event from the Login component
+	async function handleLogin(event: CustomEvent<{ email: string; password: string }>) {
+		const { email, password } = event.detail;
 		
 		try {
-			const user = await login(email, password);
-			console.log('Login successful:', user.uid);
-			alert(`Welcome back, ${user.email}!`);
-			
-			// Redirect to dashboard
-			goto('/dashboard');
-			
-		} catch (error: any) {
+			await authStore.login(email, password);
+			// Navigation will be handled automatically by the layout
+		} catch (error) {
 			console.error('Login failed:', error);
-			
-			// Handle specific Firebase Auth errors
-			let errorMessage = 'Login failed. Please try again.';
-			
-			if (error.code === 'auth/user-not-found') {
-				errorMessage = 'No account found with this email.';
-			} else if (error.code === 'auth/wrong-password') {
-				errorMessage = 'Incorrect password.';
-			} else if (error.code === 'auth/invalid-email') {
-				errorMessage = 'Invalid email address.';
-			} else if (error.code === 'auth/too-many-requests') {
-				errorMessage = 'Too many failed attempts. Please try again later.';
-			}
-			
-			alert(errorMessage);
-		} finally {
-			loading = false;
+			alert('Login failed. Please try again.');
 		}
 	}
 </script>
@@ -48,52 +22,41 @@
 	<meta name="description" content="Login to your My Money account" />
 </svelte:head>
 
-<Login 
-	title="Welcome to My Money" 
-	{loading} 
-	onLogin={handleLogin} 
-/>
-
-<footer class="app-version">
-	<p>{APP_NAME} v{APP_VERSION}</p>
-</footer>
+<div class="login-page">
+	<Login 
+		title="Welcome to My Money" 
+		loading={$authStore.isLoading} 
+		on:login={handleLogin} 
+	/>
+	
+	<footer class="version-footer">
+		<span class="version-badge">v{APP_VERSION}</span>
+	</footer>
+</div>
 
 <style>
-	.app-version {
+	.login-page {
+		min-height: 100vh;
+		position: relative;
+		/* Don't interfere with Login component's own centering */
+	}
+	
+	.version-footer {
 		position: fixed;
-		bottom: 20px;
-		right: 20px;
-		background: rgba(255, 255, 255, 0.95);
-		padding: 8px 12px;
-		border-radius: 8px;
-		box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
-		backdrop-filter: blur(10px);
-		border: 1px solid rgba(0, 0, 0, 0.1);
-		z-index: 100;
+		bottom: 2rem;
+		right: 2rem;
+		z-index: 10;
 	}
 	
-	.app-version p {
-		margin: 0;
+	.version-badge {
+		background-color: #f8f9fa;
+		color: #6c757d;
+		padding: 0.25rem 0.75rem;
+		border-radius: 12px;
 		font-size: 0.75rem;
-		color: #333;
-		font-weight: 600;
-		letter-spacing: 0.5px;
-	}
-	
-	@media (max-width: 768px) {
-		.app-version {
-			bottom: 15px;
-			right: 15px;
-			padding: 8px 12px;
-			background: rgba(255, 255, 255, 0.95);
-			border: 1px solid rgba(0, 0, 0, 0.1);
-			z-index: 1000;
-		}
-		
-		.app-version p {
-			font-size: 0.75rem;
-			color: #333;
-			font-weight: 600;
-		}
+		font-weight: 500;
+		border: 1px solid #dee2e6;
 	}
 </style>
+
+
