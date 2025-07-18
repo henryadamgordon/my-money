@@ -22,6 +22,7 @@ export interface BudgetItem {
   dueDate?: string;
   owner: string;
   paymentMethod: 'cash' | 'credit_card' | 'debit_card' | 'bank_transfer' | 'check' | 'other';
+  category?: string; // Category ID reference
   createdAt: string;
   userId: string;
 }
@@ -66,6 +67,7 @@ export class BudgetService {
         dueDate: data.dueDate,
         owner: data.owner,
         paymentMethod: data.paymentMethod,
+        category: data.category,
         createdAt: data.createdAt,
         userId: data.userId
       });
