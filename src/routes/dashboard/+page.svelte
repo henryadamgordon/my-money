@@ -2,6 +2,7 @@
 	import { authStore } from '$lib/stores/auth';
 	import { goto } from '$app/navigation';
 	import { APP_VERSION } from '$lib/version';
+	import { DashboardWidgets } from '$lib/components/dashboard';
 	
 	async function handleLogout() {
 		try {
@@ -32,17 +33,8 @@
 	</header>
 	
 	<main class="dashboard-content">
-		<div class="welcome-card">
-			<h2>🎉 Welcome to Your Financial Dashboard!</h2>
-			<p>You've successfully logged in and your session is being remembered.</p>
-			{#if $authStore.user}
-				<div class="user-details">
-					<p><strong>User ID:</strong> {$authStore.user.id}</p>
-					<p><strong>Email:</strong> {$authStore.user.email}</p>
-					<p><strong>Name:</strong> {$authStore.user.name || 'Not set'}</p>
-				</div>
-			{/if}
-		</div>
+		<!-- Dashboard Widgets Section -->
+		<DashboardWidgets />
 		
 		<div class="features-grid">
 			<div class="feature-card">
@@ -144,38 +136,7 @@
 		margin: 0 auto;
 	}
 	
-	.welcome-card {
-		background: white;
-		padding: 30px;
-		border-radius: 12px;
-		box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-		margin-bottom: 30px;
-		text-align: center;
-	}
-	
-	.welcome-card h2 {
-		color: #333;
-		margin-bottom: 15px;
-	}
-	
-	.welcome-card p {
-		color: #666;
-		margin-bottom: 20px;
-	}
-	
-	.user-details {
-		background: #f8f9fa;
-		padding: 20px;
-		border-radius: 8px;
-		text-align: left;
-		max-width: 400px;
-		margin: 0 auto;
-	}
-	
-	.user-details p {
-		margin: 8px 0;
-		color: #555;
-	}
+	/* Dashboard widgets will handle their own styling */
 	
 	.features-grid {
 		display: grid;

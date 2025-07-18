@@ -31,33 +31,35 @@
 	let errors: Record<string, string> = {};
 
 	// Reset form data when editing item changes
-	$: if (editingItem) {
-		formData = {
-			name: editingItem.name,
-			type: editingItem.type,
-			amount: editingItem.amount,
-			owner: editingItem.owner,
-			paymentMethod: editingItem.paymentMethod,
-			isRecurrent: editingItem.isRecurrent,
-			dueDay: editingItem.dueDay,
-			dueDate: editingItem.dueDate || '',
-			category: editingItem.category || ''
-		};
-		errors = {};
-	} else {
-		// Reset to defaults for new item
-		formData = {
-			name: '',
-			type: 'expense',
-			amount: 0,
-			owner: '',
-			paymentMethod: 'cash',
-			isRecurrent: false,
-			dueDay: undefined,
-			dueDate: '',
-			category: ''
-		};
-		errors = {};
+	$: {
+		if (editingItem) {
+			formData = {
+				name: editingItem.name,
+				type: editingItem.type,
+				amount: editingItem.amount,
+				owner: editingItem.owner,
+				paymentMethod: editingItem.paymentMethod,
+				isRecurrent: editingItem.isRecurrent,
+				dueDay: editingItem.dueDay,
+				dueDate: editingItem.dueDate || '',
+				category: editingItem.category || ''
+			};
+			errors = {};
+		} else {
+			// Reset to defaults for new item
+			formData = {
+				name: '',
+				type: 'expense',
+				amount: 0,
+				owner: '',
+				paymentMethod: 'cash',
+				isRecurrent: false,
+				dueDay: undefined,
+				dueDate: '',
+				category: ''
+			};
+			errors = {};
+		}
 	}
 
 	function validateForm(): boolean {
@@ -91,7 +93,26 @@
 	function handleSubmit() {
 		if (validateForm()) {
 			dispatch('submit', { formData });
+			// Reset form immediately after submission for new items
+			if (!editingItem) {
+				resetFormData();
+			}
 		}
+	}
+
+	function resetFormData() {
+		formData = {
+			name: '',
+			type: 'expense',
+			amount: 0,
+			owner: '',
+			paymentMethod: 'cash',
+			isRecurrent: false,
+			dueDay: undefined,
+			dueDate: '',
+			category: ''
+		};
+		errors = {};
 	}
 
 	function handleCancel() {
