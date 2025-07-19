@@ -74,7 +74,8 @@ export class CategoryService {
 			
 			const q = query(
 				collection(db, this.COLLECTION_NAME),
-				where('userId', '==', userId)
+				where('userId', '==', userId),
+				orderBy('name')
 			);
 			const querySnapshot = await getDocs(q);
 			

@@ -38,9 +38,9 @@
 		
 		<div class="features-grid">
 			<div class="feature-card">
-				<h3>💰 Expenses</h3>
-				<p>Track your daily expenses</p>
-				<button disabled>Coming Soon</button>
+				<h3>💳 Transactions</h3>
+				<p>Track income and expenses</p>
+				<a href="/transactions" class="nav-link">Manage Transactions</a>
 			</div>
 			
 			<div class="feature-card">
