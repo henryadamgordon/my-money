@@ -51,8 +51,8 @@
 			
 			<div class="feature-card">
 				<h3>📈 Reports</h3>
-				<p>View financial reports</p>
-				<button disabled>Coming Soon</button>
+				<p>Budget vs actual spending analysis</p>
+				<a href="/reports" class="nav-link">View Reports</a>
 			</div>
 			
 			<div class="feature-card">
@@ -162,14 +162,7 @@
 		margin-bottom: 20px;
 	}
 	
-	.feature-card button {
-		background: #ddd;
-		color: #999;
-		border: none;
-		padding: 10px 20px;
-		border-radius: 6px;
-		cursor: not-allowed;
-	}
+
 	
 	@media (max-width: 768px) {
 		.dashboard-header {
