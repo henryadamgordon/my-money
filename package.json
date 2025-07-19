@@ -1,7 +1,7 @@
 {
 	"name": "my-money",
 	"private": true,
-	"version": "0.0.2",
+	"version": "0.0.3",
 	"type": "module",
 	"scripts": {
 		"dev": "vite dev",
@@ -13,6 +13,11 @@
 		"lint": "eslint .",
 		"test:unit": "vitest",
 		"test": "npm run test:unit -- --run && npm run test:e2e",
+		"setup:firebase": "node scripts/setup-firebase.js",
+		"deploy": "npm run build && firebase deploy",
+		"deploy:hosting": "npm run build && firebase deploy --only hosting",
+		"deploy:site": "node scripts/deploy-site.js",
+		"deploy:firestore": "firebase deploy --only firestore",
 		"test:e2e": "playwright test"
 	},
 	"devDependencies": {

@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import { browser } from '$app/environment';
 	import { authStore } from '$lib/stores/auth';
+	import { goto } from '$app/navigation';
 	import ReportManagement from '$lib/components/reports/ReportManagement.svelte';
 
 	let isLoading = true;
@@ -14,6 +15,10 @@
 	function dismissError() {
 		errorMessage = '';
 	}
+
+	function goToDashboard() {
+		goto('/dashboard');
+	}
 </script>
 
 <svelte:head>
@@ -21,10 +26,17 @@
 </svelte:head>
 
 <div class="reports-page">
-	<div class="header">
-		<h1>📊 Reports</h1>
-		<p class="subtitle">Compare your budget vs actual spending</p>
+	<div class="page-header">
+		<div class="container">
+			<button class="back-btn" on:click={goToDashboard}>
+				← Back to Dashboard
+			</button>
+			<h1>📊 Reports</h1>
+			<p class="subtitle">Compare your budget vs actual spending</p>
+		</div>
 	</div>
+	
+	<div class="container">
 
 	{#if errorMessage}
 		<div class="error-message">
@@ -39,25 +51,54 @@
 			<p>Loading reports...</p>
 		</div>
 	{:else}
-		<ReportManagement />
-	{/if}
+			<ReportManagement />
+		{/if}
+	</div>
 </div>
 
 <style>
 	.reports-page {
-		max-width: 1200px;
-		margin: 0 auto;
-		padding: 1rem;
+		min-height: 100vh;
+		background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+		padding: 20px;
 	}
 
-	.header {
-		text-align: center;
+	.page-header {
+		background: white;
+		padding: 1.5rem 0;
+		box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 		margin-bottom: 2rem;
 	}
 
-	.header h1 {
+	.container {
+		max-width: 1200px;
+		margin: 0 auto;
+		padding: 0 1rem;
+	}
+
+	.back-btn {
+		background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+		color: white;
+		border: none;
+		padding: 0.75rem 1.5rem;
+		border-radius: 0.5rem;
+		cursor: pointer;
+		font-size: 0.9rem;
+		transition: all 0.2s;
+		margin-bottom: 1rem;
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	.back-btn:hover {
+		transform: translateY(-1px);
+		box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+	}
+
+	.page-header h1 {
 		color: #2c3e50;
-		margin-bottom: 0.5rem;
+		margin: 0.5rem 0;
 		font-size: 2.5rem;
 	}
 
@@ -119,16 +160,25 @@
 	}
 
 	@media (max-width: 768px) {
-		.reports-page {
-			padding: 0.5rem;
+		.container {
+			padding: 0 0.5rem;
 		}
 
-		.header h1 {
+		.page-header {
+			padding: 1rem 0;
+		}
+
+		.page-header h1 {
 			font-size: 2rem;
 		}
 
 		.subtitle {
 			font-size: 1rem;
+		}
+
+		.back-btn {
+			padding: 0.6rem 1.2rem;
+			font-size: 0.85rem;
 		}
 	}
 </style>
