@@ -130,23 +130,18 @@
 </script>
 
 <div class="transaction-management">
-	<div class="section-header">
-		<h2>💳 Transaction Management</h2>
-		<p>Track your income and expenses in one place</p>
-		
-		<div class="action-bar">
-			<button 
-				class="add-new-btn"
-				on:click={toggleForm}
-				disabled={isLoading}
-			>
-				{#if showForm}
-					❌ Cancel
-				{:else}
-					➕ Add New Transaction
-				{/if}
-			</button>
-		</div>
+	<div class="action-bar">
+		<button 
+			class="add-new-btn"
+			on:click={toggleForm}
+			disabled={isLoading}
+		>
+			{#if showForm}
+				❌ Cancel
+			{:else}
+				➕ Add New Transaction
+			{/if}
+		</button>
 	</div>
 
 	{#if errorMessage}
@@ -186,28 +181,12 @@
 		padding: 20px;
 	}
 
-	.section-header {
-		text-align: center;
-		margin-bottom: 30px;
-	}
-
-	.section-header h2 {
-		margin: 0 0 10px 0;
-		color: #333;
-		font-size: 2rem;
-	}
-
-	.section-header p {
-		margin: 0 0 25px 0;
-		color: #666;
-		font-size: 1.1rem;
-	}
-
 	.action-bar {
 		display: flex;
-		justify-content: center;
+		justify-content: flex-end;
 		gap: 15px;
 		flex-wrap: wrap;
+		margin-bottom: 20px;
 	}
 
 	.add-new-btn {
