@@ -3,6 +3,8 @@
 
 	export let transactions: Transaction[] = [];
 	export let isLoading = false;
+	export let startDate: Date;
+	export let endDate: Date;
 
 	// Calculate summary metrics
 	$: totalIncome = transactions
@@ -28,16 +30,37 @@
 		}).format(amount);
 	}
 
-	// Get current month name
-	function getCurrentMonth(): string {
-		return new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+	// Format date range for display
+	function formatDateRange(start: Date, end: Date): string {
+		const formatOptions: Intl.DateTimeFormatOptions = { 
+			month: 'short', 
+			day: 'numeric', 
+			year: 'numeric' 
+		};
+		
+		const startFormatted = start.toLocaleDateString('en-US', formatOptions);
+		const endFormatted = end.toLocaleDateString('en-US', formatOptions);
+		
+		// Check if it's the same month and year
+		if (start.getMonth() === end.getMonth() && start.getFullYear() === end.getFullYear()) {
+			// Check if it's full month (1st to last day)
+			const firstDay = new Date(start.getFullYear(), start.getMonth(), 1);
+			const lastDay = new Date(start.getFullYear(), start.getMonth() + 1, 0);
+			
+			if (start.getDate() === firstDay.getDate() && end.getDate() === lastDay.getDate()) {
+				return start.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+			}
+		}
+		
+		// Show range
+		return `${startFormatted} - ${endFormatted}`;
 	}
 </script>
 
 <div class="transaction-summary">
 	<div class="summary-header">
 		<h3>📊 Transaction Summary</h3>
-		<span class="period">{getCurrentMonth()}</span>
+		<span class="period">{formatDateRange(startDate, endDate)}</span>
 	</div>
 
 	{#if isLoading}

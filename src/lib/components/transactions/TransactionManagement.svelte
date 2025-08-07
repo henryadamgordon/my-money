@@ -4,7 +4,8 @@
 	import { TransactionService } from '$lib/services/transactionService';
 	import { CategoryService } from '$lib/services/categoryService';
 	import { BudgetService } from '$lib/services/budgetService';
-	import { TransactionForm, TransactionTable, TransactionSummary } from '$lib/components/transactions';
+	import { TransactionForm, TransactionTable, TransactionSummary, DateRangePicker } from '$lib/components/transactions';
+	import { Modal } from '$lib/components/common';
 	import type { Transaction } from '$lib/types/transaction';
 	import type { Category } from '$lib/services/categoryService';
 	import type { BudgetItem } from '$lib/services/budgetService';
@@ -16,6 +17,16 @@
 	let showForm = false;
 	let editingTransaction: Transaction | null = null;
 	let errorMessage = '';
+
+	function getCurrentMonthRange() {
+		const now = new Date();
+		const startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+		const endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+		return { startDate, endDate };
+	}
+
+	let { startDate, endDate } = getCurrentMonthRange();
+	let dateRange = { startDate, endDate };
 
 	onMount(() => {
 		loadData();
@@ -30,7 +41,7 @@
 			await CategoryService.initializeDefaultCategories($authStore.user.id);
 			
 			const [transactionsData, categoriesData, budgetItemsData] = await Promise.all([
-				TransactionService.getTransactions($authStore.user.id),
+				TransactionService.getTransactions($authStore.user.id, dateRange.startDate, dateRange.endDate),
 				CategoryService.getCategories($authStore.user.id),
 				BudgetService.getBudgetItems($authStore.user.id)
 			]);
@@ -127,6 +138,11 @@
 	function dismissError() {
 		errorMessage = '';
 	}
+
+	function handleDateRangeChange(event: CustomEvent) {
+		dateRange = event.detail;
+		loadData();
+	}
 </script>
 
 <div class="transaction-management">
@@ -151,18 +167,35 @@
 		</div>
 	{/if}
 
-	<TransactionSummary {transactions} {isLoading} />
+	<DateRangePicker 
+		startDate={dateRange.startDate}
+		endDate={dateRange.endDate}
+		disabled={isLoading}
+		on:dateRangeChange={handleDateRangeChange}
+	/>
+
+	<TransactionSummary 
+		{transactions} 
+		{isLoading} 
+		startDate={dateRange.startDate}
+		endDate={dateRange.endDate}
+	/>
 
 	{#if showForm}
-		<TransactionForm
-			{categories}
-			{budgetItems}
-			{editingTransaction}
-			{isLoading}
-			on:add={handleAddTransaction}
-			on:update={handleUpdateTransaction}
-			on:cancel={handleCancelEdit}
-		/>
+		<Modal
+			title={editingTransaction ? 'Edit Transaction' : 'Add New Transaction'}
+			on:close={handleCancelEdit}
+		>
+			<TransactionForm
+				{categories}
+				{budgetItems}
+				{editingTransaction}
+				{isLoading}
+				on:add={handleAddTransaction}
+				on:update={handleUpdateTransaction}
+				on:cancel={handleCancelEdit}
+			/>
+		</Modal>
 	{/if}
 
 	<TransactionTable

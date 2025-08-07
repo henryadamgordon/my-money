@@ -25,16 +25,27 @@ export class TransactionService {
 		}
 	}
 
-	static async getTransactions(userId: string): Promise<Transaction[]> {
+	static async getTransactions(userId: string, startDate?: Date, endDate?: Date): Promise<Transaction[]> {
 		if (!browser || !db) {
 			console.warn('Database not available, returning empty array');
 			return [];
 		}
 
 		try {
+			const constraints = [
+				where('userId', '==', userId)
+			];
+
+			if (startDate) {
+				constraints.push(where('transactionDate', '>=', startDate));
+			}
+			if (endDate) {
+				constraints.push(where('transactionDate', '<=', endDate));
+			}
+
 			const q = query(
 				collection(db, this.COLLECTION_NAME),
-				where('userId', '==', userId),
+				...constraints,
 				orderBy('transactionDate', 'desc')
 			);
 			
