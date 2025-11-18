@@ -5,7 +5,7 @@
 	import { CategoryService, type Category } from '$lib/services/categoryService';
 	import { browser } from '$app/environment';
 	import { APP_VERSION } from '$lib/version';
-	import { BudgetSummaryCards, BudgetFilters, BudgetForm, BudgetTable, CategoryManagement, ExcelImport } from '$lib/components/budget';
+	import { BudgetSummaryCards, BudgetFilters, BudgetForm, BudgetTable, CategoryManagement, ExcelImport, BudgetExcelExport } from '$lib/components/budget';
 
 	// Budget state
 	let budgetItems: BudgetItem[] = [];
@@ -32,6 +32,58 @@
 		category: '',
 		recurrent: ''
 	};
+
+	// Filtered items for export (mirrors BudgetTable filtering logic)
+	$: filteredItemsForExport = budgetItems.filter(item => {
+		const matchesSearch = !filters.search ||
+			item.name.toLowerCase().includes(filters.search.toLowerCase());
+		const matchesType = !filters.type || item.type === filters.type;
+		const matchesOwner = !filters.owner || item.owner === filters.owner;
+		const matchesPaymentMethod = !filters.paymentMethod || item.paymentMethod === filters.paymentMethod;
+		const matchesCategory = !filters.category || item.category === filters.category;
+		const matchesRecurrent = !filters.recurrent ||
+			(filters.recurrent === 'recurrent' && item.isRecurrent) ||
+			(filters.recurrent === 'one-time' && !item.isRecurrent);
+
+		return matchesSearch && matchesType && matchesOwner &&
+			   matchesPaymentMethod && matchesCategory && matchesRecurrent;
+	}).sort((a, b) => {
+		let aValue: any;
+		let bValue: any;
+
+		if (sortField === 'dueDate') {
+			// Special handling for due date sorting
+			if (a.isRecurrent && b.isRecurrent) {
+				aValue = a.dueDay || 0;
+				bValue = b.dueDay || 0;
+			} else if (!a.isRecurrent && !b.isRecurrent) {
+				aValue = a.dueDate ? new Date(a.dueDate).getTime() : 0;
+				bValue = b.dueDate ? new Date(b.dueDate).getTime() : 0;
+			} else {
+				// Mixed: put recurrent items first, then non-recurrent
+				if (a.isRecurrent && !b.isRecurrent) return sortDirection === 'asc' ? -1 : 1;
+				if (!a.isRecurrent && b.isRecurrent) return sortDirection === 'asc' ? 1 : -1;
+			}
+		} else {
+			aValue = a[sortField as keyof BudgetItem];
+			bValue = b[sortField as keyof BudgetItem];
+		}
+
+		// Handle null/undefined values
+		if (aValue == null && bValue == null) return 0;
+		if (aValue == null) return 1;
+		if (bValue == null) return -1;
+
+		// Convert to string for comparison if needed
+		if (typeof aValue === 'string' && typeof bValue === 'string') {
+			aValue = aValue.toLowerCase();
+			bValue = bValue.toLowerCase();
+		}
+
+		if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
+		if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
+		return 0;
+	});
 
 	// localStorage keys
 	const STORAGE_KEYS = {
@@ -385,23 +437,31 @@
 		<!-- Action Bar -->
 		<div class="action-bar">
 			<div class="action-buttons">
-				<button 
-					on:click={() => showAddForm = !showAddForm} 
+				<button
+					on:click={() => showAddForm = !showAddForm}
 					class="add-btn"
 				>
 					{showAddForm ? '❌ Cancel' : '➕ Add Budget Item'}
 				</button>
-				
-				<ExcelImport 
+
+				<ExcelImport
 					{categories}
 					on:importComplete={(e: CustomEvent<{ success: boolean; message: string }>) => {
 						error = e.detail.message;
 					}}
 					on:budgetItemsUpdated={loadBudgetItems}
 				/>
-				
-				<button 
-					on:click={() => showCategories = !showCategories} 
+
+				<BudgetExcelExport
+					budgetItems={filteredItemsForExport}
+					{categories}
+					on:exportComplete={(e: CustomEvent<{ success: boolean; message: string }>) => {
+						error = e.detail.message;
+					}}
+				/>
+
+				<button
+					on:click={() => showCategories = !showCategories}
 					class="categories-toggle-btn"
 					title="Toggle categories section"
 				>
